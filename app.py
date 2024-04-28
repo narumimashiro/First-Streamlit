@@ -79,7 +79,7 @@ else:
     net = cv2.dnn.readNetFromCaffe(str(PROTOTXT_LOCAL_PATH), str(MODEL_LOCAL_PATH))
     st.session_state[cache_key] = net
 
-score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
+# score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
 
 # NOTE: The callback will be called in another thread,
 #       so use a queue here for thread-safety to pass the data
@@ -139,8 +139,7 @@ webrtc_ctx = webrtc_streamer(
     key="object-detection",
     mode=WebRtcMode.SENDRECV,
     rtc_configuration={
-        "iceServers": get_ice_servers(),
-        "iceTransportPolicy": "relay",
+        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
     },
     video_frame_callback=video_frame_callback,
     media_stream_constraints={"video": True, "audio": False},
