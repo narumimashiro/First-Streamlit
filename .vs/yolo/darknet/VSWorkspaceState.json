@@ -1,0 +1,8 @@
+{
+  "OutputFoldersPerTargetSystem": {
+    "\u30ED\u30FC\u30AB\u30EB \u30B3\u30F3\u30D4\u30E5\u30FC\u30BF\u30FC": [
+      "yolo\\darknet\\out\\build\\x64-Debug",
+      "yolo\\darknet\\out\\install\\x64-Debug"
+    ]
+  }
+}
