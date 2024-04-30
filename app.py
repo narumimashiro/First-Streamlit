@@ -52,6 +52,31 @@ CLASSES = [
     "tvmonitor",
 ]
 
+COLORS = {
+    # BGR
+    "background": (0,0,0),
+    "aeroplane": (0, 255, 255), # cyan
+    "bicycle": (255, 128, 0), # orange
+    "bird": (128, 0, 0), # thick red
+    "boat": (0,0,0),
+    "bottle": (0, 255, 255), # yellow
+    "bus": (128, 128, 0), # thick yellow
+    "car": (128, 0, 128), # thick magenta
+    "cat": (192, 192, 192), # gray
+    "chair": (255, 0, 0), # blue
+    "cow": (0,0,0),
+    "diningtable": (0, 255, 0), # green
+    "dog": (0, 128, 128), # thick cyan
+    "horse": (0,0,0),
+    "motorbike": (64, 64, 64), # dark gray
+    "person": (0, 0, 255), # red
+    "pottedplant": (0, 0, 128), # thick blue
+    "sheep": (0,0,0),
+    "sofa": (0, 128, 0), # thick green
+    "train": (255, 0, 255), # magenta
+    "tvmonitor": (255, 255, 255), # white
+}
+
 
 class Detection(NamedTuple):
     class_id: int
@@ -65,7 +90,7 @@ def generate_label_colors():
     return np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
 
-COLORS = generate_label_colors()
+# COLORS = generate_label_colors()
 
 download_file(MODEL_URL, MODEL_LOCAL_PATH, expected_size=23147564)
 download_file(PROTOTXT_URL, PROTOTXT_LOCAL_PATH, expected_size=29353)
@@ -78,8 +103,6 @@ if cache_key in st.session_state:
 else:
     net = cv2.dnn.readNetFromCaffe(str(PROTOTXT_LOCAL_PATH), str(MODEL_LOCAL_PATH))
     st.session_state[cache_key] = net
-
-# score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
 
 # NOTE: The callback will be called in another thread,
 #       so use a queue here for thread-safety to pass the data
@@ -102,7 +125,7 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
 
     # Convert the output array into a structured form.
     output = output.squeeze()  # (1, 1, N, 7) -> (N, 7)
-    output = output[output[:, 2] >= 0.5]
+    output = output[output[:, 2] >= 0.3]
     detections = [
         Detection(
             class_id=int(detection[1]),
@@ -116,7 +139,7 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     # Render bounding boxes and captions
     for detection in detections:
         caption = f"{detection.label}: {round(detection.score * 100, 2)}%"
-        color = COLORS[detection.class_id]
+        color = COLORS[detection.label]
         xmin, ymin, xmax, ymax = detection.box.astype("int")
 
         cv2.rectangle(camera_frame, (xmin, ymin), (xmax, ymax), color, 2)
@@ -145,21 +168,3 @@ webrtc_ctx = webrtc_streamer(
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
 )
-
-# if st.checkbox("Show the detected labels", value=True):
-#     if webrtc_ctx.state.playing:
-#         labels_placeholder = st.empty()
-#         # NOTE: The video transformation with object detection and
-#         # this loop displaying the result labels are running
-#         # in different threads asynchronously.
-#         # Then the rendered video frames and the labels displayed here
-#         # are not strictly synchronized.
-#         while True:
-#             result = result_queue.get()
-#             labels_placeholder.table(result)
-
-# st.markdown(
-#     "This demo uses a model and code from "
-#     "https://github.com/robmarkcole/object-detection-app. "
-#     "Many thanks to the project."
-# )
